@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mahesh Music 🎧</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial;
+      background: #121212;
+      color: white;
+    }
+
+    header {
+      padding: 25px 20px;
+      background: #1e1e1e;
+    }
+
+    h1 {
+      margin: 0 0 20px;
+    }
+
+    input {
+      width: 90%;
+      padding: 14px;
+      border-radius: 25px;
+      border: none;
+      font-size: 16px;
+    }
+
+    main {
+      padding: 20px;
+      padding-bottom: 180px;
+    }
+
+    .song {
+      background: #222;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    .song:hover {
+      background: #333;
+    }
+
+    .player {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: #1e1e1e;
+      padding: 15px 0;
+      text-align: center;
+    }
+
+    button {
+      border: none;
+      border-radius: 50%;
+      padding: 15px;
+      margin: 5px;
+      font-size: 20px;
+    }
+
+    #play {
+      padding: 18px;
+    }
+
+    #progress {
+      width: 80%;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>🎧 Mahesh Music</h1>
+  <input id="search" placeholder="🔍 Search songs...">
+</header>
+
+<main>
+  <h2>🎵 My Songs</h2>
+  <div id="songs"></div>
+</main>
+
+<div class="player">
+  <b id="title">Select a song</b>
+  <br><br>
+
+  <button onclick="previous()">⏮</button>
+  <button id="play" onclick="playPause()">▶️</button>
+  <button onclick="next()">⏭</button>
+
+  <br>
+
+  <input type="range" id="progress" value="0">
+</div>
+
+<audio id="audio"></audio>
+
+<script>
+  const songs = [
+    {
+      title: "My First Song",
+      file: "song1.mp3"
+    },
+    {
+      title: "My Second Song",
+      file: "song2.mp3"
+    },
+    {
+      title: "My Third Song",
+      file: "song3.mp3"
+    }
+  ];
+
+  let current = 0;
+  const audio = document.getElementById("audio");
+  const title = document.getElementById("title");
+  const play = document.getElementById("play");
+  const progress = document.getElementById("progress");
+  const list = document.getElementById("songs");
+
+  function showSongs(data = songs) {
+    list.innerHTML = "";
+
+    data.forEach(song => {
+      const div = document.createElement("div");
+      div.className = "song";
+      div.innerHTML = "🎵 " + song.title;
+
+      div.onclick = () => {
+        current = songs.indexOf(song);
+        loadSong();
+        audio.play();
+        play.innerText = "⏸️";
+      };
+
+      list.appendChild(div);
+    });
+  }
+
+  function loadSong() {
+    audio.src = songs[current].file;
+    title.innerText = songs[current].title;
+  }
+
+  function playPause() {
+    if (!audio.src) loadSong();
+
+    if (audio.paused) {
+      audio.play();
+      play.innerText = "⏸️";
+    } else {
+      audio.pause();
+      play.innerText = "▶️";
+    }
+  }
+
+  function next() {
+    current = (current + 1) % songs.length;
+    loadSong();
+    audio.play();
+    play.innerText = "⏸️";
+  }
+
+  function previous() {
+    current = (current - 1 + songs.length) % songs.length;
+    loadSong();
+    audio.play();
+    play.innerText = "⏸️";
+  }
+
+  audio.ontimeupdate = () => {
+    if (audio.duration) {
+      progress.value =
+        (audio.currentTime / audio.duration) * 100;
+    }
+  };
+
+  progress.oninput = () => {
+    if (audio.duration) {
+      audio.currentTime =
+        (progress.value / 100) * audio.duration;
+    }
+  };
+
+  audio.onended = next;
+
+  document.getElementById("search").oninput = function() {
+    const text = this.value.toLowerCase();
+
+    showSongs(
+      songs.filter(song =>
+        song.title.toLowerCase().includes(text)
+      )
+    );
+  };
+
+  showSongs();
+</script>
+
+</body>
+</html>
